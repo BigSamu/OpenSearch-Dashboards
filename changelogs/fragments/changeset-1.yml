@@ -1,0 +1,12 @@
+fix:
+-  Updates the graph ([#1](https://github.com/BigSamu/OpenSearch-Dashboards/pull/1))
+
+feat:
+-  Adds a new feature ([#1](https://github.com/BigSamu/OpenSearch-Dashboards/pull/1))
+
+test:
+-  test ([#1](https://github.com/BigSamu/OpenSearch-Dashboards/pull/1))
+
+unknown:
+- skip
+-->
