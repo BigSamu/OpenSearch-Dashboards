@@ -1,0 +1,17 @@
+name: PR Comment Trigger
+
+on:
+  issue_comment:
+    types: [created, edited]
+
+jobs:
+  react-to-comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Perform Actions Based on Comment
+        run: |
+          echo "A comment was made on the PR."
+          # Additional commands here
