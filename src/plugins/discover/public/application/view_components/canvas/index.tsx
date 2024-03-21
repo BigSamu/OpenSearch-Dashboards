@@ -18,12 +18,13 @@ import { setColumns, useDispatch, useSelector } from '../../utils/state_manageme
 import { DiscoverViewServices } from '../../../build_services';
 import { useOpenSearchDashboards } from '../../../../../opensearch_dashboards_react/public';
 import { filterColumns } from '../utils/filter_columns';
-import { DEFAULT_COLUMNS_SETTING } from '../../../../common';
+import { DEFAULT_COLUMNS_SETTING, MODIFY_COLUMNS_ON_SWITCH } from '../../../../common';
 import { OpenSearchSearchHit } from '../../../application/doc_views/doc_views_types';
 import './discover_canvas.scss';
 
 // eslint-disable-next-line import/no-default-export
 export default function DiscoverCanvas({ setHeaderActionMenu, history }: ViewProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
   const { data$, refetch$, indexPattern } = useDiscoverContext();
   const {
     services: { uiSettings },
@@ -32,7 +33,8 @@ export default function DiscoverCanvas({ setHeaderActionMenu, history }: ViewPro
   const filteredColumns = filterColumns(
     columns,
     indexPattern,
-    uiSettings.get(DEFAULT_COLUMNS_SETTING)
+    uiSettings.get(DEFAULT_COLUMNS_SETTING),
+    uiSettings.get(MODIFY_COLUMNS_ON_SWITCH)
   );
   const dispatch = useDispatch();
   const prevIndexPattern = useRef(indexPattern);
@@ -88,9 +90,15 @@ export default function DiscoverCanvas({ setHeaderActionMenu, history }: ViewPro
   }, [dispatch, filteredColumns, indexPattern]);
 
   const timeField = indexPattern?.timeFieldName ? indexPattern.timeFieldName : undefined;
+  const scrollToTop = () => {
+    if (panelRef.current) {
+      panelRef.current.scrollTop = 0;
+    }
+  };
 
   return (
     <EuiPanel
+      panelRef={panelRef}
       hasBorder={false}
       hasShadow={false}
       color="transparent"
@@ -111,14 +119,10 @@ export default function DiscoverCanvas({ setHeaderActionMenu, history }: ViewPro
       )}
       {fetchState.status === ResultStatus.LOADING && <LoadingSpinner />}
       {fetchState.status === ResultStatus.READY && (
-        <>
-          <EuiPanel hasBorder={false} hasShadow={false} color="transparent" paddingSize="s">
-            <EuiPanel>
-              <MemoizedDiscoverChartContainer {...fetchState} />
-            </EuiPanel>
-          </EuiPanel>
-          <MemoizedDiscoverTable rows={rows} />
-        </>
+        <EuiPanel hasShadow={false} paddingSize="none" className="dscCanvas_results">
+          <MemoizedDiscoverChartContainer {...fetchState} />
+          <MemoizedDiscoverTable rows={rows} scrollToTop={scrollToTop} />
+        </EuiPanel>
       )}
     </EuiPanel>
   );
